@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.io.File;
@@ -7,8 +8,8 @@ import java.util.Stack;
 
 public class Kosaraju {
     private static int n;
-    private static boolean [] visited;
-    private static boolean [] addplz;
+    private static HashSet<Integer> visited;
+    private static HashSet<Integer> addplz;
 
     public static void main(String[] args) {
         HashMap <Integer, ArrayList<Integer>> graph = new HashMap<>();
@@ -22,7 +23,7 @@ public class Kosaraju {
                 int v_end = in.nextInt();
 
                 // adds to the graph
-                if (graph.get(v_start) == null) {
+                if (!graph.containsKey(v_start)) {
                     ArrayList<Integer> e1 = new ArrayList<>();
                     e1.add(v_end);
                     graph.put(v_start, e1);
@@ -32,7 +33,7 @@ public class Kosaraju {
                 }
 
                 // adds to the reverse graph
-                if (graph_rev.get(v_end) == null) {
+                if (!graph_rev.containsKey(v_end)) {
                     ArrayList<Integer> er = new ArrayList<>();
                     er.add(v_start);
                     graph_rev.put(v_end, er);
@@ -41,21 +42,22 @@ public class Kosaraju {
                     graph_rev.get(v_end).add(v_start);
                 }
 
-                n = v_start;
+                int v_max = Math.max(v_start, v_end);
+                n = Math.max(n, v_max);
             }
         }
         catch (Exception e) {
             e.printStackTrace();
         }
 
-        visited = new boolean[n+1];
-        addplz = new boolean[n+1];
+        visited = new HashSet<>();
+        addplz = new HashSet<>();
         int [] order = new int [n];
         int pos = 0;
 
         // iterating backwards through the HashMap of graph_rev
         for (int i = n; i >= 1; i--) {
-            if (!visited[i]) {
+            if (!visited.contains(i)) {
                 // finds the finishing order until it cannot continue
                 ArrayList<Integer> small_order = find_order(graph_rev, i);
 
@@ -67,24 +69,24 @@ public class Kosaraju {
             }
         }
 
-        // resets the visited vertices for the forward DFS
-        visited = new boolean[n+1];
+        visited.clear();
         ArrayList<Integer> scc_size = new ArrayList<>();
 
         // iterating backwards through the array of finishing orders
-        for (int i = order.length-1; i >=0; i--) {
+        for (int i = order.length-1; i >= 0; i--) {
             int current = order[i];
 
             // if the next vertex in the finishing order hasn't been visited, it's the start of a new SCC
-            // finds the length and adds the length to the list of lengths of SCC's
-            if (!visited[current]) {
+            // finds the length and adds the length to the list of lengths of SCCs
+            if (!visited.contains(current)) {
                 scc_size.add(find_scc(graph, current));
             }
         }
 
         // sorts and prints the 5 largest SCCs
         Collections.sort(scc_size);
-        for (int i=scc_size.size()-1; i>=scc_size.size()-5; i--) System.out.println(scc_size.get(i));
+        for (int i=scc_size.size()-1; i>=0 && i>=scc_size.size()-5; i--)
+            System.out.println(scc_size.get(i));
     }
 
     // DFS through the reverse graph to find finishing orders
@@ -99,26 +101,26 @@ public class Kosaraju {
             // ignore previously visited vertices, but add them to the finished ordering if they were waiting
             // to be added while backtracking, also remembering to not add it to the order a second time if
             // the vertex is encountered along a different path
-            if (visited[current]) {
-                if (addplz[current]) {
-                    addplz[current] = false;
+            if (visited.contains(current)) {
+                if (addplz.contains(current)) {
+                    addplz.remove(current);
                     order.add(current);
                 }
                 continue;
             }
 
-            visited[current] = true;
+            visited.add(current);
 
             // adds the vertex back to the stack so it will be encountered while backtracking.
             // also notes that this vertex needs to be added to the finishing order once it is
             // found while backtracking
-            addplz[current] = true;
+            addplz.add(current);
             s.push(current);
 
             // adds unvisited neighbors to the stack
             if (g.get(current) != null) {
                 for (int v : g.get(current)) {
-                    if (!visited[v]) {
+                    if (!visited.contains(v)) {
                         s.push(v);
                     }
                 }
@@ -128,7 +130,7 @@ public class Kosaraju {
         return order;
     }
 
-    // forward DFS to find the size of the various strongly connected components
+    // DFS to find the size of the various strongly connected components
     private static int find_scc(HashMap<Integer, ArrayList<Integer>> g, int v_start) {
         Stack <Integer> s = new Stack<>();
         int scc = 0;
@@ -137,16 +139,16 @@ public class Kosaraju {
         while (!s.isEmpty()) {
             int current = s.pop();
 
-            if (visited[current]) continue;
+            if (visited.contains(current)) continue;
 
             // increments the size of the scc for each vertex visited
-            visited[current] = true;
+            visited.add(current);
             scc++;
 
             // adds unvisited neighbors to the stack
             if (g.get(current) != null) {
                 for (int v : g.get(current)) {
-                    if (!visited[v]) {
+                    if (!visited.contains(v)) {
                         s.push(v);
                     }
                 }
