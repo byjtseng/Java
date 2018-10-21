@@ -50,6 +50,8 @@ public class Kosaraju {
             e.printStackTrace();
         }
 
+        System.out.println(n + " total vertices");
+
         visited = new HashSet<>();
         addplz = new HashSet<>();
         int [] order = new int [n];
