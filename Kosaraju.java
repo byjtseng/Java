@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.io.File;
 import java.util.Scanner;
-import java.util.Stack;
+import java.util.LinkedList;
 
 public class Kosaraju {
     private static int n;
@@ -93,7 +93,7 @@ public class Kosaraju {
 
     // DFS through the reverse graph to find finishing orders
     private static ArrayList<Integer> find_order(HashMap<Integer, ArrayList<Integer>> g, int v_start) {
-        Stack <Integer> s = new Stack<>();
+        LinkedList <Integer> s = new LinkedList<>();
         ArrayList <Integer> order = new ArrayList<>();
         s.push(v_start);
 
@@ -134,7 +134,7 @@ public class Kosaraju {
 
     // DFS to find the size of the various strongly connected components
     private static int find_scc(HashMap<Integer, ArrayList<Integer>> g, int v_start) {
-        Stack <Integer> s = new Stack<>();
+        LinkedList <Integer> s = new LinkedList<>();
         int scc = 0;
         s.push(v_start);
 
