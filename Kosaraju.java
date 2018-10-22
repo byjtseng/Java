@@ -12,38 +12,50 @@ public class Kosaraju {
     private static HashSet<Integer> addplz;
 
     public static void main(String[] args) {
-        HashMap <Integer, ArrayList<Integer>> graph = new HashMap<>();
-        HashMap <Integer, ArrayList<Integer>> graph_rev = new HashMap<>();
+        Vertex[] graph = new Vertex[1];
+        Vertex[] graph_rev = new Vertex[1];
 
         // reads in a file with a list of directed edges in numerical order
         try {
-            Scanner in = new Scanner(new File("SCC.txt"));
-            while (in.hasNext()) {
-                int v_start = in.nextInt();
-                int v_end = in.nextInt();
-
-                // adds to the graph
-                if (!graph.containsKey(v_start)) {
-                    ArrayList<Integer> e1 = new ArrayList<>();
-                    e1.add(v_end);
-                    graph.put(v_start, e1);
-                }
-                else {
-                    graph.get(v_start).add(v_end);
-                }
-
-                // adds to the reverse graph
-                if (!graph_rev.containsKey(v_end)) {
-                    ArrayList<Integer> er = new ArrayList<>();
-                    er.add(v_start);
-                    graph_rev.put(v_end, er);
-                }
-                else {
-                    graph_rev.get(v_end).add(v_start);
-                }
+            Scanner max = new Scanner(new File("SCC.txt"));
+            while (max.hasNext()) {
+                int v_start = max.nextInt();
+                int v_end = max.nextInt();
 
                 int v_max = Math.max(v_start, v_end);
                 n = Math.max(n, v_max);
+            }
+
+            graph = new Vertex[n];
+            graph_rev = new Vertex[n];
+
+            Scanner in = new Scanner(new File("SCC.txt"));
+            while (in.hasNext()) {
+                int v_start = in.nextInt()-1;
+                int v_end = in.nextInt()-1;
+
+                // adds to the graph
+                if (graph[v_start] == null) {
+                    graph[v_start] = new Vertex();
+                    ArrayList<Integer> e1 = new ArrayList<>();
+                    e1.add(v_end);
+                    graph[v_start].edges = e1;
+                }
+                else {
+                    graph[v_start].edges.add(v_end);
+                }
+
+                // adds to the reverse graph
+                if (graph_rev[v_end] == null) {
+                    graph_rev[v_end] = new Vertex();
+                    ArrayList<Integer> er = new ArrayList<>();
+                    er.add(v_start);
+                    graph_rev[v_end].edges = er;
+                }
+                else {
+                    graph_rev[v_end].edges.add(v_start);
+                }
+
             }
         }
         catch (Exception e) {
@@ -58,7 +70,7 @@ public class Kosaraju {
         int pos = 0;
 
         // iterating backwards through the HashMap of graph_rev
-        for (int i = n; i >= 1; i--) {
+        for (int i = n-1; i >= 0; i--) {
             if (!visited.contains(i)) {
                 // finds the finishing order until it cannot continue
                 ArrayList<Integer> small_order = find_order(graph_rev, i);
@@ -92,7 +104,7 @@ public class Kosaraju {
     }
 
     // DFS through the reverse graph to find finishing orders
-    private static ArrayList<Integer> find_order(HashMap<Integer, ArrayList<Integer>> g, int v_start) {
+    private static ArrayList<Integer> find_order(Vertex[] g, int v_start) {
         LinkedList <Integer> s = new LinkedList<>();
         ArrayList <Integer> order = new ArrayList<>();
         s.push(v_start);
@@ -120,8 +132,8 @@ public class Kosaraju {
             s.push(current);
 
             // adds unvisited neighbors to the stack
-            if (g.get(current) != null) {
-                for (int v : g.get(current)) {
+            if (g[current] != null) {
+                for (int v : g[current].edges) {
                     if (!visited.contains(v)) {
                         s.push(v);
                     }
@@ -133,7 +145,7 @@ public class Kosaraju {
     }
 
     // DFS to find the size of the various strongly connected components
-    private static int find_scc(HashMap<Integer, ArrayList<Integer>> g, int v_start) {
+    private static int find_scc(Vertex[] g, int v_start) {
         LinkedList <Integer> s = new LinkedList<>();
         int scc = 0;
         s.push(v_start);
@@ -148,8 +160,8 @@ public class Kosaraju {
             scc++;
 
             // adds unvisited neighbors to the stack
-            if (g.get(current) != null) {
-                for (int v : g.get(current)) {
+            if (g[current] != null) {
+                for (int v : g[current].edges) {
                     if (!visited.contains(v)) {
                         s.push(v);
                     }
@@ -159,4 +171,9 @@ public class Kosaraju {
 
         return scc;
     }
+
+    private static class Vertex {
+        ArrayList <Integer> edges;
+    }
 }
+
