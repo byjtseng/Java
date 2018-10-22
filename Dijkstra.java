@@ -74,26 +74,27 @@ public class Dijkstra {
             }
         }
     }
-}
 
-class Vertex {
-    int min_length;
-    ArrayList<Edge> edges;
-}
+    static class Vertex {
+        int min_length;
+        ArrayList<Edge> edges;
+    }
 
-class Edge {
-    int tail_id;
-    int length;
-}
+    static class Edge {
+        int tail_id;
+        int length;
+    }
 
-class VertexComparator implements Comparator<Vertex> {
-    public int compare(Vertex v1, Vertex v2) {
-        if (v1.min_length > v2.min_length) {
-            return 1;
+    static class VertexComparator implements Comparator<Vertex> {
+        public int compare(Vertex v1, Vertex v2) {
+            if (v1.min_length > v2.min_length) {
+                return 1;
+            }
+            else if (v1.min_length < v2.min_length) {
+                return -1;
+            }
+            return 0;
         }
-        else if (v1.min_length < v2.min_length) {
-            return -1;
-        }
-        return 0;
     }
 }
+
