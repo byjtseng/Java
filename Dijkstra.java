@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.PriorityQueue;
@@ -9,10 +8,10 @@ import java.io.File;
 public class Dijkstra {
     private static HashSet<Vertex> visited;
     private static PriorityQueue<Vertex> heap;
-    private static HashMap <Integer, Vertex> vertices;
+    private static Vertex[] vertices;
 
     public static void main(String[] args) {
-        vertices = new HashMap<>();
+        vertices = new Vertex[200];
 
         try {
             Scanner in = new Scanner(new File("dijkstraData.txt"));
@@ -20,19 +19,19 @@ public class Dijkstra {
             while (in.hasNext()) {
                 Scanner line = new Scanner(in.nextLine());
                 Vertex v = new Vertex();
-                int id = line.nextInt();
+                int v_id = line.nextInt()-1;
                 v.edges = new ArrayList<>();
 
                 while (line.hasNext()) {
                     Edge e = new Edge();
                     String[] s = line.next().split(",");
-                    e.tail_id = Integer.parseInt(s[0]);
+                    e.tail_id = Integer.parseInt(s[0])-1;
                     e.length = Integer.parseInt(s[1]);
 
                     v.edges.add(e);
                 }
 
-                vertices.put(id, v);
+                vertices[v_id] = v;
             }
         }
         catch(Exception e) {
@@ -41,29 +40,30 @@ public class Dijkstra {
 
         visited = new HashSet<>();
         heap = new PriorityQueue<>(new VertexComparator());
-        heap.add(vertices.get(1));
+        heap.add(vertices[0]);
 
-        while (visited.size() < vertices.size()) {
-            add_vertex();
+        while (visited.size() < vertices.length) {
+            find_next();
         }
 
-        for (int i = 1; i < vertices.size(); i++) {
-            Vertex v = vertices.get(i);
-            System.out.println(i + ": " + v.min_length);
+        for (int i = 0; i < vertices.length; i++) {
+            Vertex v = vertices[i];
+            System.out.println((i+1) + ": " + v.min_length);
         }
     }
 
-    private static void add_vertex() {
+    private static void find_next() {
         Vertex v = heap.poll();
 
         if (v != null) {
             visited.add(v);
 
             for (Edge e : v.edges) {
-                Vertex n = vertices.get(e.tail_id);
+                Vertex n = vertices[e.tail_id];
                 if (visited.contains(n)) continue;
 
                 if (heap.contains(n)) {
+
                     heap.remove(n);
                     n.min_length = Math.min(v.min_length + e.length, n.min_length);
                     heap.add(n);
